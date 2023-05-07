@@ -29,7 +29,7 @@ int main(int argc, char **argv) {
 //    consolaFile.run();
     QApplication a(argc, argv);
     Fereastra aplicatie(serviceDisciplineFile);
-//    aplicatie.show();
+    aplicatie.show();
     return a.exec();
 
 }
