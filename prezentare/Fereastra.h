@@ -18,6 +18,9 @@
 #include <QTableWidget>
 #include <QTableWidgetItem>
 #include <QWidget>
+#include <QObject>
+#include <QDebug>
+#include <QMessageBox>
 #include "../service/ServiceDiscipline.h"
 
 class Fereastra : public QWidget {
