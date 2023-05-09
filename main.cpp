@@ -1,6 +1,7 @@
 #include <iostream>
 #include <QApplication>
 #include <QLabel>
+#include <QIcon>
 #include "testing/Teste.h"
 #include "repository/RepositoryDiscipline.h"
 #include "validator/ValidatorDisciplina.h"

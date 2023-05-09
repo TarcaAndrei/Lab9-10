@@ -20,6 +20,11 @@
 #include <QWidget>
 #include <QObject>
 #include <QDebug>
+#include <QImageReader>
+#include <QCheckBox>
+#include <QRadioButton>
+#include <QButtonGroup>
+#include <QGroupBox>
 #include <QMessageBox>
 #include "../service/ServiceDiscipline.h"
 
@@ -28,10 +33,15 @@ private:
     ServiceDiscipline serviceDiscipline;
     QHBoxLayout* layout_principal;
     QVBoxLayout* layout_stanga;
+    QVBoxLayout* layout_mijloc;
     QVBoxLayout* layout_dreapta;
+    QListWidget* lista_discipline;
     void initializare();
     void incarca_lista();
     void formular();
+    void reload_lista();
+    void butoane_generice();
+    void butoane_sortari_filtrari(QVBoxLayout* layout_butoane);
 public:
     Fereastra(const ServiceDiscipline& serviceDiscipline1);
     ~Fereastra() override =default;
