@@ -169,9 +169,9 @@ string Disciplina::scriere_disciplina() {
     final+=";";
     final+=this->denumire_disciplina;
     final+=";";
-    final+=this->get_cadru_didactic();
-    final+=";";
     final+=this->tip;
+    final+=";";
+    final+=this->get_cadru_didactic();
     final+=";";
     final+=std::to_string(this->get_ore_pe_saptamana());
     return final;

@@ -7,6 +7,7 @@
 
 Fereastra::Fereastra(const ServiceDiscipline& serviceDiscipline1) {
     this->serviceDiscipline = serviceDiscipline1;
+//    this->serviceDiscipline.autopopulare();
     this->initializare();
 }
 
@@ -18,16 +19,16 @@ void Fereastra::formular() {
     auto lbl_tip = new QLabel("Tip");
     auto lbl_prof = new QLabel("Profesor");
     auto lbl_ore = new QLabel("Numar ore");
-    auto txt_id = new QLineEdit;
+    this->txt_id = new QLineEdit;
     txt_id->setPlaceholderText("Introdu ID");
     txt_id->setValidator(new QIntValidator());
-    auto txt_den = new QLineEdit;
+    this->txt_den = new QLineEdit;
     txt_den->setPlaceholderText("Introdu Denumirea");
-    auto txt_tip = new QLineEdit;
+    this->txt_tip = new QLineEdit;
     txt_tip->setPlaceholderText("Introdu Tipul");
-    auto txt_prof = new QLineEdit;
+    this->txt_prof = new QLineEdit;
     txt_prof->setPlaceholderText("Introdu Profesorul");
-    auto txt_ore = new QLineEdit;
+    this->txt_ore = new QLineEdit;
     txt_ore->setPlaceholderText("Introdu Numarul de Ore");
     txt_ore->setValidator(new QIntValidator(0, 10));
     formular_disc->addRow(lbl_id, txt_id);
@@ -53,15 +54,12 @@ void Fereastra::formular() {
 
     this->layout_mijloc->addLayout(layout_butoane_jos);
 
-    QObject::connect(buton_cancel, &QPushButton::clicked, [txt_ore, txt_id, txt_den, txt_prof, txt_tip](){
-        txt_ore->clear();
-        txt_id->clear();
-        txt_den->clear();
-        txt_prof->clear();
-        txt_tip->clear();
+    QObject::connect(buton_cancel, &QPushButton::clicked, [this](){
+        this->clear_fields();
+        this->reload_lista();
     });
 
-    QObject::connect(buton_salvare, &QPushButton::clicked, [this, txt_ore, txt_id, txt_den, txt_prof, txt_tip](){
+    QObject::connect(buton_salvare, &QPushButton::clicked, [this](){
         auto id_disciplina = txt_id->text().toInt();
         auto denumire_disciplina = txt_den->text().toStdString();
         auto prof = txt_prof->text().toStdString();
@@ -71,18 +69,14 @@ void Fereastra::formular() {
         try{
             this->serviceDiscipline.adauga_disciplina(id_disciplina, denumire_disciplina, nr_ore, tip, prof);
             this->reload_lista();
-            txt_ore->clear();
-            txt_id->clear();
-            txt_den->clear();
-            txt_prof->clear();
-            txt_tip->clear();
+            this->clear_fields();
         }
         catch (erori_app &e){
             QMessageBox::information(nullptr, "EROARE", QString::fromStdString(e.what()));
         }
     });
 
-    QObject::connect(buton_modificare, &QPushButton::clicked, [this, txt_ore, txt_id, txt_den, txt_prof, txt_tip](){
+    QObject::connect(buton_modificare, &QPushButton::clicked, [this](){
         auto id_disciplina = txt_id->text().toInt();
         auto denumire_disciplina = txt_den->text().toStdString();
         auto prof = txt_prof->text().toStdString();
@@ -92,28 +86,20 @@ void Fereastra::formular() {
         try{
             this->serviceDiscipline.modifica_disciplina(id_disciplina, denumire_disciplina, nr_ore, tip, prof);
             this->reload_lista();
-            txt_ore->clear();
-            txt_id->clear();
-            txt_den->clear();
-            txt_prof->clear();
-            txt_tip->clear();
+            this->clear_fields();
         }
         catch (erori_app &e){
             QMessageBox::information(nullptr, "EROARE", QString::fromStdString(e.what()));
         }
     });
 
-    QObject::connect(buton_stergere, &QPushButton::clicked, [this, txt_ore, txt_id, txt_den, txt_prof, txt_tip](){
+    QObject::connect(buton_stergere, &QPushButton::clicked, [this](){
         auto id_disciplina = txt_id->text().toInt();
 //        qDebug() << id_disciplina;
         try{
             this->serviceDiscipline.sterge_disciplina(id_disciplina);
             this->reload_lista();
-            txt_ore->clear();
-            txt_id->clear();
-            txt_den->clear();
-            txt_prof->clear();
-            txt_tip->clear();
+            this->clear_fields();
         }
         catch (erori_app &e){
             QMessageBox::information(nullptr, "EROARE", QString::fromStdString(e.what()));
@@ -134,14 +120,10 @@ void Fereastra::formular() {
 
     });
 
-    QObject::connect(this->lista_discipline, &QListWidget::itemSelectionChanged, [this, txt_ore, txt_id, txt_den, txt_prof, txt_tip](){
+    QObject::connect(this->lista_discipline, &QListWidget::itemSelectionChanged, [this](){
         auto sel = this->lista_discipline->selectedItems();
         if(sel.empty()){
-            txt_ore->clear();
-            txt_id->clear();
-            txt_den->clear();
-            txt_prof->clear();
-            txt_tip->clear();
+            this->clear_fields();
         }
         else{
             auto sel_item = sel.at(0);
@@ -322,24 +304,62 @@ void Fereastra::butoane_sortari_filtrari(QVBoxLayout* layout_butoane) {
     auto buton_filtrare_cadru = new QPushButton;
     buton_filtrare_cadru->setText("&Filtrare Cadru Didactic");
     auto buton_filtrare_ore_cresc = new QPushButton;
-    buton_filtrare_ore_cresc->setText("&Filtrare Ore -");
     auto buton_filtrare_ore_desc = new QPushButton;
-    buton_filtrare_ore_desc->setText("&Filtrare Ore +");
+    buton_filtrare_ore_cresc->setText("&Filtrare Ore +");
+    buton_filtrare_ore_desc->setText("&Filtrare Ore -");
 
     butoane_filtr->addWidget(buton_filtrare_cadru);
     butoane_filtr->addWidget(buton_filtrare_ore_cresc);
     butoane_filtr->addWidget(buton_filtrare_ore_desc);
     layout_butoane->addLayout(butoane_filtr);
 
-    QObject::connect(buton_filtrare_cadru, &QPushButton::clicked, [](){
-
+    QObject::connect(buton_filtrare_cadru, &QPushButton::clicked, [&](){
+        auto lista = this->serviceDiscipline.filtrare_disciplina(this->txt_id->text().toInt(), this->txt_prof->text().toStdString(), '3');
+        this->reload_lista();
+        for(const auto& it : lista){
+            auto id_disc = it.get_id();
+            for(auto i = 0; i < this->lista_discipline->count(); ++i){
+                auto item = this->lista_discipline->item(i);
+                if(item->data(Qt::UserRole).toInt() == id_disc){
+                    this->lista_discipline->item(i)->setBackground(QBrush{Qt::darkRed});
+                }
+            }
+        }
     });
-    QObject::connect(buton_filtrare_ore_desc, &QPushButton::clicked, [](){
-
+    QObject::connect(buton_filtrare_ore_desc, &QPushButton::clicked, [&](){
+        auto lista = this->serviceDiscipline.filtrare_disciplina(this->txt_ore->text().toInt(), this->txt_prof->text().toStdString(), '2');
+        this->reload_lista();
+        for(const auto& it : lista){
+            auto id_disc = it.get_id();
+            for(auto i = 0; i < this->lista_discipline->count(); ++i){
+                auto item = this->lista_discipline->item(i);
+                if(item->data(Qt::UserRole).toInt() == id_disc){
+                    this->lista_discipline->item(i)->setBackground(QBrush{Qt::darkRed});
+                }
+            }
+        }
     });
-    QObject::connect(buton_filtrare_ore_cresc, &QPushButton::clicked, [](){
-
+    QObject::connect(buton_filtrare_ore_cresc, &QPushButton::clicked, [&](){
+        auto lista = this->serviceDiscipline.filtrare_disciplina(this->txt_ore->text().toInt(), this->txt_prof->text().toStdString(), '1');
+        this->reload_lista();
+        for(const auto& it : lista){
+            auto id_disc = it.get_id();
+            for(auto i = 0; i < this->lista_discipline->count(); ++i){
+                auto item = this->lista_discipline->item(i);
+                if(item->data(Qt::UserRole).toInt() == id_disc){
+                    this->lista_discipline->item(i)->setBackground(QBrush{Qt::darkRed});
+                }
+            }
+        }
     });
+}
+
+void Fereastra::clear_fields() {
+    this->txt_ore->clear();
+    this->txt_id->clear();
+    this->txt_den->clear();
+    this->txt_prof->clear();
+    this->txt_tip->clear();
 }
 
 

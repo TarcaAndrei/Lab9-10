@@ -36,12 +36,18 @@ private:
     QVBoxLayout* layout_mijloc;
     QVBoxLayout* layout_dreapta;
     QListWidget* lista_discipline;
+    QLineEdit* txt_id;
+    QLineEdit* txt_tip;
+    QLineEdit* txt_prof;
+    QLineEdit* txt_den;
+    QLineEdit* txt_ore;
     void initializare();
     void incarca_lista();
     void formular();
     void reload_lista();
     void butoane_generice();
     void butoane_sortari_filtrari(QVBoxLayout* layout_butoane);
+    void clear_fields();
 public:
     Fereastra(const ServiceDiscipline& serviceDiscipline1);
     ~Fereastra() override =default;
