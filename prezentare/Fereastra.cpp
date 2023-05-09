@@ -3,6 +3,7 @@
 //
 #include "Fereastra.h"
 #include "../exceptions/erori_app.h"
+#include "../vector/Iterator.h"
 
 Fereastra::Fereastra(const ServiceDiscipline& serviceDiscipline1) {
     this->serviceDiscipline = serviceDiscipline1;
@@ -118,10 +119,52 @@ void Fereastra::formular() {
             QMessageBox::information(nullptr, "EROARE", QString::fromStdString(e.what()));
         }
     });
+
+    auto buton_undo = new QPushButton;
+    buton_undo->setText("&Undo");
+    this->layout_mijloc->addWidget(buton_undo);
+    QObject::connect(buton_undo, &QPushButton::clicked, [&](){
+        try {
+            this->serviceDiscipline.undo();
+            this->reload_lista();
+        }
+        catch(erori_app &e){
+            QMessageBox::information(nullptr, "Eroare", QString::fromStdString(e.what()));
+        }
+
+    });
+
+    QObject::connect(this->lista_discipline, &QListWidget::itemSelectionChanged, [this, txt_ore, txt_id, txt_den, txt_prof, txt_tip](){
+        auto sel = this->lista_discipline->selectedItems();
+        if(sel.empty()){
+            txt_ore->clear();
+            txt_id->clear();
+            txt_den->clear();
+            txt_prof->clear();
+            txt_tip->clear();
+        }
+        else{
+            auto sel_item = sel.at(0);
+//            qDebug()<<sel_item->data(Qt::UserRole)<<' '<<sel_item->text();
+            auto idk = sel_item->data(Qt::UserRole);
+            auto id_disc = idk.toInt();
+//            qDebug()<<"ceva";
+            auto disciplina = this->serviceDiscipline.get_disciplina_id_srv(id_disc);
+//            qDebug()<<"ceva";
+            txt_id->setText(QString::fromStdString(to_string(disciplina.get_id())));
+//            qDebug()<<"ceva";
+            txt_ore->setText(QString::fromStdString(to_string(disciplina.get_ore_pe_saptamana())));
+            txt_den->setText(QString::fromStdString(disciplina.get_denumire()));
+            txt_tip->setText(QString::fromStdString(disciplina.get_tip()));
+            txt_prof->setText(QString::fromStdString(disciplina.get_cadru_didactic()));
+        }
+//        qDebug()<<"Selectie modificata";
+    });
 }
 
 void Fereastra::incarca_lista() {
     this->lista_discipline = new QListWidget;
+    this->lista_discipline->setSelectionMode(QAbstractItemView::SingleSelection);
     auto denumire = new QLabel;
     denumire->setText("Lista discipline");
     denumire->setAlignment(Qt::Alignment::enum_type::AlignCenter);
@@ -136,6 +179,7 @@ void Fereastra::incarca_lista() {
         auto afisare_disciplina = QString::fromStdString(it->get_denumire());
         auto list_item = new QListWidgetItem();
         list_item->setText(afisare_disciplina);
+        list_item->setData(Qt::UserRole, it->get_id());
         lista_discipline->addItem(list_item);
     }
 }
@@ -152,7 +196,6 @@ void Fereastra::initializare() {
     this->incarca_lista();
     this->formular();
     this->butoane_generice();
-
 }
 
 void Fereastra::reload_lista() {        //altfel reloadul
@@ -161,6 +204,7 @@ void Fereastra::reload_lista() {        //altfel reloadul
 //        auto denumire_disciplina = QString::fromStdString(it->get_denumire());
         auto afisare_disciplina = QString::fromStdString(it->get_denumire());
         auto list_item = new QListWidgetItem();
+        list_item->setData(Qt::UserRole, it->get_id());
         list_item->setText(afisare_disciplina);
         lista_discipline->addItem(list_item);
     }
@@ -169,19 +213,6 @@ void Fereastra::reload_lista() {        //altfel reloadul
 void Fereastra::butoane_generice() {
     auto layout_butoane_dreapta = new QVBoxLayout;
     this->layout_dreapta->addLayout(layout_butoane_dreapta);
-    auto buton_undo = new QPushButton;
-    buton_undo->setText("&Undo");
-    layout_butoane_dreapta->addWidget(buton_undo);
-    QObject::connect(buton_undo, &QPushButton::clicked, [&](){
-        try {
-            this->serviceDiscipline.undo();
-            this->reload_lista();
-        }
-        catch(erori_app &e){
-            QMessageBox::information(nullptr, "Eroare", QString::fromStdString(e.what()));
-        }
-
-    });
 
     this->butoane_sortari_filtrari(layout_butoane_dreapta);
     auto buton_cos = new QPushButton;
@@ -198,12 +229,11 @@ void Fereastra::butoane_generice() {
 }
 
 void Fereastra::butoane_sortari_filtrari(QVBoxLayout* layout_butoane) {
-    auto buton_sortare_cresc_denumire = new QPushButton;
-    buton_sortare_cresc_denumire->setText("&Sortare");
-    layout_butoane->addWidget(buton_sortare_cresc_denumire);
-
+//    std::unordered_map<char, QRadioButton*> lista_butoane_optiuni;
+    QMap<char, QRadioButton*> lista_butoane_optiuni;
+    QMap<char, QRadioButton*> lista_butoane_ordine;
     auto lbl = new QLabel;
-    lbl->setText("Ceva");
+    lbl->setText("Ordine Sortare");
     layout_butoane->addWidget(lbl);
     auto group_box_ord = new QButtonGroup;
     auto layout_check_buttons = new QHBoxLayout;
@@ -212,58 +242,104 @@ void Fereastra::butoane_sortari_filtrari(QVBoxLayout* layout_butoane) {
     optiune_cresc->setText("&Crescator");
     layout_check_buttons->addWidget(optiune_cresc);
     optiune_cresc->setChecked(true);
+    lista_butoane_ordine['+'] = optiune_cresc;
     auto optiune_desc = new QRadioButton;
     optiune_desc->setText("&Descrescator");
     optiune_desc->setChecked(false);
+    lista_butoane_ordine['-'] = optiune_desc;
     layout_check_buttons->addWidget(optiune_desc);
     group_box_ord->addButton(optiune_cresc);
     group_box_ord->addButton(optiune_desc);
 
 
     auto lb2l = new QLabel;
-    lb2l->setText("Ceva2");
+    lb2l->setText("Tip sortare");
     layout_butoane->addWidget(lb2l);
     auto group_box_optiuni = new QButtonGroup;
     auto layout_butoane_optiune = new QVBoxLayout;
+    auto layout_butoane_optiune1 = new QHBoxLayout;
+    auto layout_butoane_optiune2 = new QHBoxLayout;
+    layout_butoane_optiune->addLayout(layout_butoane_optiune1);
+    layout_butoane_optiune->addLayout(layout_butoane_optiune2);
     layout_butoane->addLayout(layout_butoane_optiune);
     auto optiune_denumire = new QRadioButton;
     optiune_denumire->setText("&Denumire");
-    layout_butoane_optiune->addWidget(optiune_denumire);
+    layout_butoane_optiune1->addWidget(optiune_denumire);
     optiune_denumire->setChecked(true);
+    lista_butoane_optiuni['1'] = optiune_denumire;
     auto optiune_numar_ore = new QRadioButton;
     optiune_numar_ore->setText("&Numar ore");
     optiune_numar_ore->setChecked(false);
-    layout_butoane_optiune->addWidget(optiune_numar_ore);
+    layout_butoane_optiune1->addWidget(optiune_numar_ore);
+    lista_butoane_optiuni['2'] = optiune_numar_ore;
     auto optiune_cadru = new QRadioButton;
     optiune_cadru->setText("&Cadru didactic");
     optiune_cadru->setChecked(false);
-    layout_butoane_optiune->addWidget(optiune_cadru);
+    layout_butoane_optiune2->addWidget(optiune_cadru);
+    lista_butoane_optiuni['3'] = optiune_cadru;
     auto optiune_tip = new QRadioButton;
     optiune_tip->setText("&Tip");
     optiune_tip->setChecked(false);
-    layout_butoane_optiune->addWidget(optiune_tip);
+    lista_butoane_optiuni['4'] = optiune_tip;
+    layout_butoane_optiune2->addWidget(optiune_tip);
     group_box_optiuni->addButton(optiune_denumire);
     group_box_optiuni->addButton(optiune_numar_ore);
     group_box_optiuni->addButton(optiune_cadru);
     group_box_optiuni->addButton(optiune_tip);
-//    QObject::connect(optiune_cresc, &QRadioButton::clicked, [&](){
-//       optiune_desc->setChecked(false);
-//    });
 
+    auto buton_sortare = new QPushButton;
+    buton_sortare->setText("&Sortare");
+    layout_butoane->addWidget(buton_sortare);
 
-//    auto check_box_cresc = new QCheckBox;
-//    check_box_cresc->setText("&Crescator");
-//    auto check_box_desc = new QCheckBox;
-//    check_box_desc->setText("&Descrescator");
-//    layout_check_buttons->addWidget(check_box_cresc);
-//    check_box_cresc->setCheckState(Qt::CheckState::Checked);
-//    layout_check_buttons->addWidget(check_box_desc);
-//    check_box_desc->setCheckState(Qt::CheckState::Unchecked);
-//
-//    QObject::connect(check_box_cresc, &QCheckBox::stateChanged, [](){
-//
-//    });
+    QObject::connect(buton_sortare, &QPushButton::clicked, [=](){
+        auto comanda = ' ';
+        for(auto it = lista_butoane_optiuni.constKeyValueBegin(); it != lista_butoane_optiuni.constKeyValueEnd(); it++){
+            if(it->second->isChecked()){
+                comanda = it->first;
+//                qDebug()<<comanda;
+            }
+        }
+        auto ordine = ' ';
+        for(auto it = lista_butoane_ordine.constKeyValueBegin(); it != lista_butoane_ordine.constKeyValueEnd(); it++){
+            if(it->second->isChecked()){
+                ordine = it->first;
+//                qDebug()<<ordine;
+            }
+        }
+        auto vector_final = this->serviceDiscipline.sortare_discipline(comanda, ordine);
+        this->lista_discipline->clear();
+        for(auto it = vector_final.begin(); it < it.end(); it++){
+//        auto denumire_disciplina = QString::fromStdString(it->get_denumire());
+            auto afisare_disciplina = QString::fromStdString((*it).get_denumire());
+            auto list_item = new QListWidgetItem();
+            list_item->setData(Qt::UserRole, (*it).get_id());
+            list_item->setText(afisare_disciplina);
+            lista_discipline->addItem(list_item);
+        }
+    });
+    auto butoane_filtr = new QHBoxLayout;
+
+    auto buton_filtrare_cadru = new QPushButton;
+    buton_filtrare_cadru->setText("&Filtrare Cadru Didactic");
+    auto buton_filtrare_ore_cresc = new QPushButton;
+    buton_filtrare_ore_cresc->setText("&Filtrare Ore -");
+    auto buton_filtrare_ore_desc = new QPushButton;
+    buton_filtrare_ore_desc->setText("&Filtrare Ore +");
+
+    butoane_filtr->addWidget(buton_filtrare_cadru);
+    butoane_filtr->addWidget(buton_filtrare_ore_cresc);
+    butoane_filtr->addWidget(buton_filtrare_ore_desc);
+    layout_butoane->addLayout(butoane_filtr);
+
+    QObject::connect(buton_filtrare_cadru, &QPushButton::clicked, [](){
+
+    });
+    QObject::connect(buton_filtrare_ore_desc, &QPushButton::clicked, [](){
+
+    });
+    QObject::connect(buton_filtrare_ore_cresc, &QPushButton::clicked, [](){
+
+    });
 }
-
 
 

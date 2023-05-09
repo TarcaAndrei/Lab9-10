@@ -49,6 +49,7 @@ public:
     int autopopulare_contract(int an_contract, int numar);
     int get_numar_contracte();
     void undo();
+    Disciplina get_disciplina_id_srv(int id_disciplina);
 };
 
 

@@ -7,7 +7,8 @@
 #include "../exceptions/erori_app.h"
 
 void RepositoryContracte::creeaza_contract(int an_primit) {
-    if(find_if(this->listaContracte.begin(), this->listaContracte.end(),[an_primit](ContractStudiu contractStudiu){return contractStudiu.get_an() == an_primit;}) != this->listaContracte.end()){
+    if(find_if(this->listaContracte.begin(), this->listaContracte.end(),[an_primit](ContractStudiu contractStudiu){
+        return contractStudiu.get_an() == an_primit;}) != this->listaContracte.end()){
         throw contract_error("Acest an are deja un contract!");
     }
     auto contract_nou = ContractStudiu(an_primit);
@@ -15,7 +16,8 @@ void RepositoryContracte::creeaza_contract(int an_primit) {
 }
 
 void RepositoryContracte::adauga_disciplina_contract(int an_contract, const Disciplina& disciplina_noua) {
-    auto ceva = find_if(this->listaContracte.begin(), this->listaContracte.end(),[an_contract](ContractStudiu contractStudiu){return contractStudiu.get_an() == an_contract;});
+    auto ceva = find_if(this->listaContracte.begin(), this->listaContracte.end(),[an_contract](ContractStudiu contractStudiu)
+    {return contractStudiu.get_an() == an_contract;});
     if(ceva == this->listaContracte.end()){
         throw contract_error("Nu exista niciun contract pentru acest an!");
     }

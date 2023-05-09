@@ -154,14 +154,16 @@ ServiceDiscipline::filtrare_disciplina(int numar_ore, string cadru_did, char opt
     string copie;
     transform(cadru_did.begin(), cadru_did.end(), cadru_did.begin(), ::tolower);
     if(optiune == '1'){
-        std::copy_if(this->repositoryDiscipline->get_lista_begin(), this->repositoryDiscipline->get_lista_end(), std::back_inserter(dictionar_final), [numar_ore](Disciplina disc){return disc.get_ore_pe_saptamana() >= numar_ore;});
+        std::copy_if(this->repositoryDiscipline->get_lista_begin(), this->repositoryDiscipline->get_lista_end(), std::back_inserter(dictionar_final),
+                     [numar_ore](Disciplina disc){return disc.get_ore_pe_saptamana() >= numar_ore;});
 //        for(auto it = this->repositoryDiscipline.get_lista_begin(); it < this->repositoryDiscipline.get_lista_end(); it++){
 //            if((*it).get_ore_pe_saptamana() >= numar_ore)
 //                dictionar_final.push_back(*it);
 //        }
     }
     else if(optiune == '2'){
-        std::copy_if(this->repositoryDiscipline->get_lista_begin(), this->repositoryDiscipline->get_lista_end(), std::back_inserter(dictionar_final), [numar_ore](Disciplina disc){return disc.get_ore_pe_saptamana() <= numar_ore;});
+        std::copy_if(this->repositoryDiscipline->get_lista_begin(), this->repositoryDiscipline->get_lista_end(), std::back_inserter(dictionar_final),
+                     [numar_ore](Disciplina disc){return disc.get_ore_pe_saptamana() <= numar_ore;});
 //        for(auto it = this->repositoryDiscipline.get_lista_begin(); it < this->repositoryDiscipline.get_lista_end(); it++){
 //            if((*it).get_ore_pe_saptamana() <= numar_ore)
 //                dictionar_final.push_back(*it);
@@ -215,6 +217,7 @@ Vector<Disciplina> ServiceDiscipline::sortare_discipline(char comanda, char ordi
             return vectorfinal;
     }
     return vectorfinal;
+
 }
 
 std::vector<Disciplina>::iterator ServiceDiscipline::get_discipline_end() {
@@ -337,6 +340,10 @@ ServiceDiscipline::~ServiceDiscipline() {
         delete actiuneUndo;
 
     }
+}
+
+Disciplina ServiceDiscipline::get_disciplina_id_srv(int id_disciplina) {
+    return this->repositoryDiscipline->get_disciplina_id(id_disciplina);
 }
 
 
