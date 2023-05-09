@@ -26,7 +26,7 @@ add_executable(Lab9_10 main.cpp domain/Disciplina.cpp domain/Disciplina.h
         service/ServiceDiscipline.cpp service/ServiceDiscipline.h
         consola/Consola.cpp consola/Consola.h exceptions/erori_app.cpp exceptions/erori_app.h contract/ContractStudiu.cpp contract/ContractStudiu.h
         repository/RepositoryContracte.cpp repository/RepositoryContracte.h
-        undo/ActiuneUndo.cpp undo/ActiuneUndo.h undo/UndoAdauga.cpp undo/UndoAdauga.h undo/UndoStergere.cpp undo/UndoStergere.h undo/UndoModificare.cpp undo/UndoModificare.h repository/RepositoryFileDiscipline.cpp repository/RepositoryFileDiscipline.h prezentare/Fereastra.cpp prezentare/Fereastra.h)
+        undo/ActiuneUndo.cpp undo/ActiuneUndo.h undo/UndoAdauga.cpp undo/UndoAdauga.h undo/UndoStergere.cpp undo/UndoStergere.h undo/UndoModificare.cpp undo/UndoModificare.h repository/RepositoryFileDiscipline.cpp repository/RepositoryFileDiscipline.h prezentare/Fereastra.cpp prezentare/Fereastra.h prezentare/FereastraContracte.cpp prezentare/FereastraContracte.h)
 
 target_link_libraries(Lab9_10
         Qt::Core

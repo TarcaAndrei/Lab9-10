@@ -4,6 +4,7 @@
 #include "Fereastra.h"
 #include "../exceptions/erori_app.h"
 #include "../vector/Iterator.h"
+#include "FereastraContracte.h"
 
 Fereastra::Fereastra(const ServiceDiscipline& serviceDiscipline1) {
     this->serviceDiscipline = serviceDiscipline1;
@@ -156,6 +157,7 @@ void Fereastra::incarca_lista() {
     denumire->setFont(*font_lista);
     this->layout_stanga->addWidget(denumire);
     this->layout_stanga->addWidget(lista_discipline);
+//    this->lista_discipline->setItemAlignment(Qt::Alignment::enum_type::AlignCenter);
     for(auto it = this->serviceDiscipline.get_discipline_begin(); it< this->serviceDiscipline.get_discipline_end(); it++){
 //        auto denumire_disciplina = QString::fromStdString(it->get_denumire());
         auto afisare_disciplina = QString::fromStdString(it->get_denumire());
@@ -207,6 +209,12 @@ void Fereastra::butoane_generice() {
         qDebug() << "Buton exit apasat!";
 //        QMessageBox::information(nullptr, "EXIT", "Aplicatia se va inchide!");
         close();
+    });
+
+    QObject::connect(buton_cos, &QPushButton::clicked, [this](){
+        //aloc pe heap noua clasa si ii dau show
+        auto contracte_window = new FereastraContracte(this->serviceDiscipline);
+        contracte_window->show();
     });
 }
 
@@ -314,6 +322,9 @@ void Fereastra::butoane_sortari_filtrari(QVBoxLayout* layout_butoane) {
     layout_butoane->addLayout(butoane_filtr);
 
     QObject::connect(buton_filtrare_cadru, &QPushButton::clicked, [&](){
+        if(this->txt_id->text().isEmpty()){
+            return;
+        }
         auto lista = this->serviceDiscipline.filtrare_disciplina(this->txt_id->text().toInt(), this->txt_prof->text().toStdString(), '3');
         this->reload_lista();
         for(const auto& it : lista){
@@ -321,12 +332,15 @@ void Fereastra::butoane_sortari_filtrari(QVBoxLayout* layout_butoane) {
             for(auto i = 0; i < this->lista_discipline->count(); ++i){
                 auto item = this->lista_discipline->item(i);
                 if(item->data(Qt::UserRole).toInt() == id_disc){
-                    this->lista_discipline->item(i)->setBackground(QBrush{Qt::darkRed});
+                    this->lista_discipline->item(i)->setBackground(QBrush{Qt::darkGreen});
                 }
             }
         }
     });
     QObject::connect(buton_filtrare_ore_desc, &QPushButton::clicked, [&](){
+        if(this->txt_id->text().isEmpty()){
+            return;
+        }
         auto lista = this->serviceDiscipline.filtrare_disciplina(this->txt_ore->text().toInt(), this->txt_prof->text().toStdString(), '2');
         this->reload_lista();
         for(const auto& it : lista){
@@ -334,12 +348,15 @@ void Fereastra::butoane_sortari_filtrari(QVBoxLayout* layout_butoane) {
             for(auto i = 0; i < this->lista_discipline->count(); ++i){
                 auto item = this->lista_discipline->item(i);
                 if(item->data(Qt::UserRole).toInt() == id_disc){
-                    this->lista_discipline->item(i)->setBackground(QBrush{Qt::darkRed});
+                    this->lista_discipline->item(i)->setBackground(QBrush{Qt::darkGreen});
                 }
             }
         }
     });
     QObject::connect(buton_filtrare_ore_cresc, &QPushButton::clicked, [&](){
+        if(this->txt_id->text().isEmpty()){
+            return;
+        }
         auto lista = this->serviceDiscipline.filtrare_disciplina(this->txt_ore->text().toInt(), this->txt_prof->text().toStdString(), '1');
         this->reload_lista();
         for(const auto& it : lista){
@@ -347,7 +364,7 @@ void Fereastra::butoane_sortari_filtrari(QVBoxLayout* layout_butoane) {
             for(auto i = 0; i < this->lista_discipline->count(); ++i){
                 auto item = this->lista_discipline->item(i);
                 if(item->data(Qt::UserRole).toInt() == id_disc){
-                    this->lista_discipline->item(i)->setBackground(QBrush{Qt::darkRed});
+                    this->lista_discipline->item(i)->setBackground(QBrush{Qt::darkGreen});
                 }
             }
         }

@@ -751,7 +751,7 @@ void Consola::exportul_unui_contract() {
     }
     auto nume_fisier = denumire_disc;
     try{
-        this->serviceDiscipline.export_contract(an_contract, denumire_disc);
+        this->serviceDiscipline.export_contract(an_contract, nume_fisier);
         std::cout<<"Contractul a fost exportat cu succes in folderul dedicat!\n";
     }
     catch (erori_app &e){

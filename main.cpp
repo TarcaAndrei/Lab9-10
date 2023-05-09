@@ -29,6 +29,8 @@ int main(int argc, char **argv) {
     Consola consolaFile{serviceDisciplineFile};
 //    consolaFile.run();
     QApplication a(argc, argv);
+//    a.setStyle("NorwegianWoodStyle");
+//    QApplication::setStyle("NorwegianWoodStyle");
     Fereastra aplicatie(serviceDisciplineFile);
     aplicatie.show();
     return a.exec();
