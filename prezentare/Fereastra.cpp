@@ -322,7 +322,7 @@ void Fereastra::butoane_sortari_filtrari(QVBoxLayout* layout_butoane) {
     layout_butoane->addLayout(butoane_filtr);
 
     QObject::connect(buton_filtrare_cadru, &QPushButton::clicked, [&](){
-        if(this->txt_id->text().isEmpty()){
+        if(this->txt_prof->text().isEmpty()){
             return;
         }
         auto lista = this->serviceDiscipline.filtrare_disciplina(this->txt_id->text().toInt(), this->txt_prof->text().toStdString(), '3');
@@ -338,7 +338,7 @@ void Fereastra::butoane_sortari_filtrari(QVBoxLayout* layout_butoane) {
         }
     });
     QObject::connect(buton_filtrare_ore_desc, &QPushButton::clicked, [&](){
-        if(this->txt_id->text().isEmpty()){
+        if(this->txt_ore->text().isEmpty()){
             return;
         }
         auto lista = this->serviceDiscipline.filtrare_disciplina(this->txt_ore->text().toInt(), this->txt_prof->text().toStdString(), '2');
@@ -354,7 +354,7 @@ void Fereastra::butoane_sortari_filtrari(QVBoxLayout* layout_butoane) {
         }
     });
     QObject::connect(buton_filtrare_ore_cresc, &QPushButton::clicked, [&](){
-        if(this->txt_id->text().isEmpty()){
+        if(this->txt_ore->text().isEmpty()){
             return;
         }
         auto lista = this->serviceDiscipline.filtrare_disciplina(this->txt_ore->text().toInt(), this->txt_prof->text().toStdString(), '1');

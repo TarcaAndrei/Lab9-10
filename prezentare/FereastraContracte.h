@@ -31,6 +31,7 @@
 class FereastraContracte : public QWidget {
 private:
     ServiceDiscipline& serviceDiscipline;
+    
     QHBoxLayout* layout_principal;
     QVBoxLayout* layout_stanga;
     QVBoxLayout* layout_mijloc;
